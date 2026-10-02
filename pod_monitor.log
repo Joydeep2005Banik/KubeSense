@@ -13050,3 +13050,16 @@ Unable to connect to the server: dial tcp 192.168.49.2:8443: i/o timeout
 2026-07-27 22:19:08,725 - pod_monitor.monitor - INFO - SSH: monitoring pod default/healthy-app via 192.168.49.2
 2026-07-27 22:19:08,725 - pod_monitor.monitor - INFO - SSH: monitoring pod default/log-generator via 192.168.49.2
 2026-07-27 22:19:08,725 - pod_monitor.monitor - INFO - Monitoring 4 pods (mode=ssh)
+2026-10-02 21:56:19,132 - pod_monitor.main - INFO - Starting Pod Monitor with 1 pods (mode=ssh)
+2026-10-02 21:56:19,133 - pod_monitor.main - INFO - AI Analysis: Enabled
+2026-10-02 21:56:19,133 - pod_monitor.main - INFO - AI Provider: mock
+2026-10-02 21:56:19,197 - pod_monitor.k8s_client - INFO - Connected to Kubernetes API via local kubeconfig.
+2026-10-02 21:56:19,212 - pod_monitor.monitor - INFO - Discovered 4 pods in namespace default via K8s API
+2026-10-02 21:56:19,379 - pod_monitor.ssh_client - INFO - Connected to 192.168.49.2
+2026-10-02 21:56:19,379 - pod_monitor.monitor - INFO - SSH: monitoring pod default/cpu-stress via 192.168.49.2
+2026-10-02 21:56:19,379 - pod_monitor.monitor - INFO - SSH: monitoring pod default/crashing-pod via 192.168.49.2
+2026-10-02 21:56:19,380 - pod_monitor.monitor - INFO - SSH: monitoring pod default/healthy-app via 192.168.49.2
+2026-10-02 21:56:19,380 - pod_monitor.monitor - INFO - SSH: monitoring pod default/log-generator via 192.168.49.2
+2026-10-02 21:56:19,380 - pod_monitor.monitor - INFO - Monitoring 4 pods (mode=ssh)
+2026-10-02 21:56:59,961 - pod_monitor.ai_analyzer - ERROR - Ollama analysis failed: Cannot connect to host localhost:11434 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 11434, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 11434)]
+2026-10-02 21:57:04,996 - pod_monitor.ai_analyzer - ERROR - Ollama analysis failed: Cannot connect to host localhost:11434 ssl:default [Multiple exceptions: [Errno 111] Connect call failed ('::1', 11434, 0, 0), [Errno 111] Connect call failed ('127.0.0.1', 11434)]

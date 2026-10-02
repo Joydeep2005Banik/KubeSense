@@ -38,15 +38,17 @@ class SSHConfig:
 class AIConfig:
     """AI analysis configuration."""
     enabled: bool = True
-    provider: str = "mock"  # "openai", "ollama", "mock"
+    provider: str = "mock"  # "openai", "ollama", "groq", "mock"
     openai_token: Optional[str] = None
     openai_model: str = "gpt-3.5-turbo"
+    groq_token: Optional[str] = None
+    groq_model: str = "gemma2-9b-it"
     ollama_url: Optional[str] = None
     ollama_model: str = "mistral"
     mock_mode: bool = True
     max_tokens: int = 500
     temperature: float = 0.3
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "AIConfig":
         return cls(
@@ -54,6 +56,8 @@ class AIConfig:
             provider=data.get('provider', 'mock'),
             openai_token=data.get('openai_token') or os.getenv('OPENAI_API_KEY'),
             openai_model=data.get('openai_model', 'gpt-3.5-turbo'),
+            groq_token=data.get('groq_token') or os.getenv('GROQ_API_KEY'),
+            groq_model=data.get('groq_model', 'gemma2-9b-it'),
             ollama_url=data.get('ollama_url') or os.getenv('OLLAMA_URL', 'http://localhost:11434'),
             ollama_model=data.get('ollama_model', 'mistral'),
             mock_mode=data.get('mock_mode', True),
@@ -117,10 +121,13 @@ class Config:
         
         if self.ai.provider == "openai" and not self.ai.openai_token:
             raise ValueError("OpenAI token required for OpenAI provider")
-        
+
         if self.ai.provider == "ollama" and not self.ai.ollama_url:
             raise ValueError("Ollama URL required for Ollama provider")
-        
+
+        if self.ai.provider == "groq" and not self.ai.groq_token:
+            raise ValueError("Groq token required for Groq provider")
+
         return True
     
     @classmethod
@@ -194,9 +201,11 @@ def create_default_config(path: str = "config.yaml"):
         },
         'ai': {
             'enabled': True,
-            'provider': 'mock',  # 'openai', 'ollama', 'mock'
+            'provider': 'mock',  # 'openai', 'ollama', 'groq', 'mock'
             'openai_token': '',  # Or set OPENAI_API_KEY env var
             'openai_model': 'gpt-3.5-turbo',
+            'groq_token': '',  # Or set GROQ_API_KEY env var
+            'groq_model': 'gemma2-9b-it',
             'ollama_url': 'http://localhost:11434',
             'ollama_model': 'mistral',
             'mock_mode': True,

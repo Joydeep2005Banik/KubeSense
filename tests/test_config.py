@@ -27,6 +27,19 @@ def test_config_validation_ollama():
     with pytest.raises(ValueError, match="Ollama URL required"):
         config.validate()
 
+def test_config_validation_groq():
+    config = get_default_config()
+    config.ai.provider = "groq"
+    config.ai.groq_token = None
+    with pytest.raises(ValueError, match="Groq token required"):
+        config.validate()
+
+def test_groq_config_defaults_and_env(monkeypatch):
+    monkeypatch.setenv("GROQ_API_KEY", "test-groq-key")
+    config = AIConfig.from_dict({})
+    assert config.groq_token == "test-groq-key"
+    assert config.groq_model == "gemma2-9b-it"
+
 def test_create_and_load_config(tmp_path):
     config_file = tmp_path / "test_config.yaml"
     create_default_config(str(config_file))
