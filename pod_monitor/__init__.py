@@ -18,6 +18,14 @@ from .models import (
     PodMetrics
 )
 from .log_optimizer import LogOptimizer
+from .ai_analyzer import (
+    AIAnalyzer,
+    AIProvider,
+    MockProvider,
+    OllamaProvider,
+    GroqProvider,
+    get_ai_provider,
+)
 
 __all__ = [
     "PodMonitor",
@@ -31,6 +39,12 @@ __all__ = [
     "LogLevel",
     "PodMetrics",
     "LogOptimizer",
+    "AIAnalyzer",
+    "AIProvider",
+    "MockProvider",
+    "OllamaProvider",
+    "GroqProvider",
+    "get_ai_provider",
 ]
 
 # Default configuration

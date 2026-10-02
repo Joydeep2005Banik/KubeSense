@@ -17,11 +17,7 @@ class PodMonitor:
         self.config = config
         self.pods: Dict[str, PodStatus] = {}
         self.clients: Dict[str, object] = {}  # SSHClient or KubectlClient
-        self.ai_analyzer = AIAnalyzer(
-            api_token=config.ai.openai_token,
-            ollama_url=config.ai.ollama_url,
-            mock_mode=config.ai.mock_mode or not config.ai.enabled
-        )
+        self.ai_analyzer = AIAnalyzer(config=config.ai)
         self.ui_callback = ui_callback
         self.running = False
         self._tasks: List[asyncio.Task] = []
