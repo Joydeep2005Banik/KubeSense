@@ -10,17 +10,18 @@ from .monitor import PodMonitor
 from .ui import PodMonitorUI
 from .config import load_config, Config
 from .models import (
-    PodStatus, 
-    Anomaly, 
-    LogEntry, 
+    PodStatus,
+    Anomaly,
+    LogEntry,
     Severity,
     LogLevel,
     PodMetrics
 )
+from .log_optimizer import LogOptimizer
 
 __all__ = [
     "PodMonitor",
-    "PodMonitorUI", 
+    "PodMonitorUI",
     "load_config",
     "Config",
     "PodStatus",
@@ -29,6 +30,7 @@ __all__ = [
     "Severity",
     "LogLevel",
     "PodMetrics",
+    "LogOptimizer",
 ]
 
 # Default configuration
