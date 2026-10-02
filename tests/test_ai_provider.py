@@ -3,6 +3,7 @@ Unit tests for AIProvider layer and AIAnalyzer.
 """
 
 import json
+import aiohttp
 from datetime import datetime
 from unittest.mock import AsyncMock, patch, MagicMock
 import pytest
@@ -415,6 +416,66 @@ async def test_ai_analyzer_custom_provider(sample_error_logs, sample_pod_status)
     mock_prov.analyze.assert_called_once()
     assert len(anomalies) == 1
     assert anomalies[0].description == "Custom injected anomaly"
+    # Ensure anomalies are attached to pod_status
+    assert sample_pod_status.anomalies == anomalies
+
+
+@pytest.mark.asyncio
+async def test_ai_analyzer_timeout_error_handling(sample_error_logs, sample_pod_status):
+    """Test AIAnalyzer gracefully handles TimeoutError without raising."""
+    mock_prov = AsyncMock(spec=AIProvider)
+    mock_prov.analyze = AsyncMock(side_effect=TimeoutError("Request timed out"))
+
+    analyzer = AIAnalyzer(provider=mock_prov)
+    anomalies = await analyzer.analyze_logs(sample_error_logs, sample_pod_status)
+
+    assert anomalies == []
+    assert sample_pod_status.anomalies == []
+
+
+@pytest.mark.asyncio
+async def test_ai_analyzer_rate_limit_error_handling(sample_error_logs, sample_pod_status):
+    """Test AIAnalyzer gracefully handles rate limit (429) ClientResponseError."""
+    mock_prov = AsyncMock(spec=AIProvider)
+    response_error = aiohttp.ClientResponseError(
+        request_info=MagicMock(),
+        history=(),
+        status=429,
+        message="Too Many Requests"
+    )
+    mock_prov.analyze = AsyncMock(side_effect=response_error)
+
+    analyzer = AIAnalyzer(provider=mock_prov)
+    anomalies = await analyzer.analyze_logs(sample_error_logs, sample_pod_status)
+
+    assert anomalies == []
+    assert sample_pod_status.anomalies == []
+
+
+@pytest.mark.asyncio
+async def test_ai_analyzer_json_decode_error_handling(sample_error_logs, sample_pod_status):
+    """Test AIAnalyzer gracefully handles JSONDecodeError."""
+    mock_prov = AsyncMock(spec=AIProvider)
+    mock_prov.analyze = AsyncMock(side_effect=json.JSONDecodeError("Invalid JSON", "doc", 0))
+
+    analyzer = AIAnalyzer(provider=mock_prov)
+    anomalies = await analyzer.analyze_logs(sample_error_logs, sample_pod_status)
+
+    assert anomalies == []
+    assert sample_pod_status.anomalies == []
+
+
+@pytest.mark.asyncio
+async def test_ai_analyzer_generic_exception_handling(sample_error_logs, sample_pod_status):
+    """Test AIAnalyzer gracefully handles generic runtime exceptions."""
+    mock_prov = AsyncMock(spec=AIProvider)
+    mock_prov.analyze = AsyncMock(side_effect=RuntimeError("Unexpected internal failure"))
+
+    analyzer = AIAnalyzer(provider=mock_prov)
+    anomalies = await analyzer.analyze_logs(sample_error_logs, sample_pod_status)
+
+    assert anomalies == []
+    assert sample_pod_status.anomalies == []
 
 
 def test_ai_analyzer_summary_generation():

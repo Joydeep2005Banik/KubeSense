@@ -420,7 +420,11 @@ class GroqProvider(AIProvider):
         try:
             async with aiohttp.ClientSession(timeout=client_timeout) as session:
                 async with session.post(self.GROQ_API_URL, headers=headers, json=request_body) as response:
-                    if response.status != 200:
+                    if response.status == 429:
+                        error_text = await response.text()
+                        logger.warning(f"Groq API rate limit exceeded (HTTP 429): {error_text}")
+                        return []
+                    elif response.status != 200:
                         error_text = await response.text()
                         logger.error(f"Groq API returned HTTP {response.status}: {error_text}")
                         return []
@@ -509,7 +513,11 @@ class OpenAIProvider(AIProvider):
         try:
             async with aiohttp.ClientSession(timeout=client_timeout) as session:
                 async with session.post(self.OPENAI_API_URL, headers=headers, json=request_body) as response:
-                    if response.status != 200:
+                    if response.status == 429:
+                        error_text = await response.text()
+                        logger.warning(f"OpenAI API rate limit exceeded (HTTP 429): {error_text}")
+                        return []
+                    elif response.status != 200:
                         error_text = await response.text()
                         logger.error(f"OpenAI API returned HTTP {response.status}: {error_text}")
                         return []
@@ -610,24 +618,59 @@ class AIAnalyzer:
         self.context_window = 50
 
     async def analyze_logs(self, logs: List[LogEntry], pod_status: PodStatus) -> List[Anomaly]:
-        """Analyze logs for anomalies using the configured AI provider."""
-        if not logs:
+        """
+        Analyze logs for anomalies using the configured AI provider.
+
+        Runs raw logs through LogOptimizer (filter -> deduplicate -> scrub -> prepare_payload),
+        passes the payload to the AIProvider, catches errors gracefully, and attaches
+        resulting anomalies to pod_status for UI rendering.
+        """
+        target_logs = logs if logs else getattr(pod_status, "logs", [])
+        if not target_logs:
+            pod_status.anomalies = []
             return []
 
-        # Prepare optimized payload
-        payload = LogOptimizer.prepare_payload(logs=logs, pod_status=pod_status)
+        try:
+            # 1. Pass raw pod logs through LogOptimizer (filter -> deduplicate -> scrub -> prepare_payload)
+            payload = LogOptimizer.prepare_payload(logs=target_logs, pod_status=pod_status)
 
-        # Execute analysis via provider
-        anomalies = await self.provider.analyze(payload)
+            # 2. Pass optimized payload to the AIProvider.analyze()
+            anomalies = await self.provider.analyze(payload)
 
-        # Guarantee pod_ip and pod_name are populated with actual pod info
-        for anomaly in anomalies:
-            if not anomaly.pod_ip or anomaly.pod_ip in ("127.0.0.1", "[REDACTED_IP]", "unknown"):
-                anomaly.pod_ip = pod_status.ip
-            if not anomaly.pod_name or anomaly.pod_name in ("mock-pod", "Unknown"):
-                anomaly.pod_name = pod_status.name
+            # 3. Ensure resulting Anomaly objects have correct pod metadata
+            for anomaly in anomalies:
+                if not anomaly.pod_ip or anomaly.pod_ip in ("127.0.0.1", "[REDACTED_IP]", "unknown"):
+                    anomaly.pod_ip = pod_status.ip
+                if not anomaly.pod_name or anomaly.pod_name in ("mock-pod", "Unknown"):
+                    anomaly.pod_name = pod_status.name
 
-        return anomalies
+            # 4. Attach resulting Anomaly objects to PodStatus for UI rendering
+            pod_status.anomalies = anomalies
+            return anomalies
+
+        except asyncio.TimeoutError:
+            logger.error(f"AI analysis timed out for pod {pod_status.name}")
+            pod_status.anomalies = []
+            return []
+        except aiohttp.ClientResponseError as e:
+            if e.status == 429:
+                logger.warning(f"AI provider rate limit reached (HTTP 429) for pod {pod_status.name}: {e}")
+            else:
+                logger.error(f"AI provider HTTP error {e.status} for pod {pod_status.name}: {e}")
+            pod_status.anomalies = []
+            return []
+        except aiohttp.ClientError as e:
+            logger.error(f"AI provider connection error for pod {pod_status.name}: {e}")
+            pod_status.anomalies = []
+            return []
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to decode AI response for pod {pod_status.name}: {e}")
+            pod_status.anomalies = []
+            return []
+        except Exception as e:
+            logger.error(f"Unexpected error during AI log analysis for pod {pod_status.name}: {e}", exc_info=True)
+            pod_status.anomalies = []
+            return []
 
     def generate_summary(self, anomalies: List[Anomaly]) -> str:
         """Generate a human-readable summary of anomalies."""
