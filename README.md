@@ -1,14 +1,14 @@
 <div align="center">
-  <img src="assets/screenshot_1785170994.svg" alt="KubeSense Logo" width="800"/>
-  
-  <br/>
-  
   # KubeSense
   **The high-density, terminal-based Kubernetes monitoring dashboard.**
   
   [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
   [![Kubernetes](https://img.shields.io/badge/kubernetes-API-326ce5.svg)](https://kubernetes.io)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+  
+  <br/>
+  
+  <img src="assets/screenshot_1785170994.svg" alt="KubeSense Logo" width="800"/>
 </div>
 
 <hr/>
