@@ -18,6 +18,20 @@
 
 Say goodbye to complex web interfaces. Instantly visualize cluster health, track dynamic CPU and memory usage, tail container logs, and run passive AI-driven log anomaly detection—all from the comfort of your terminal.
 
+## 🏗️ Architecture Overview
+
+```mermaid
+graph TD
+    A[Terminal Dashboard<br/>Textual UI] <--> B[Monitor Engine]
+    B -->|Fetch Metrics| C(Kubernetes Cluster)
+    B -->|Stream Live Logs| C
+    B -->|Sanitize & Format| D{Log Optimizer}
+    D -->|Query| E[AI Providers<br/>Groq/Ollama]
+    E -->|Anomaly Alerts| A
+```
+
+For a deeper dive into how KubeSense works under the hood, check out the [Detailed Architecture Guide](docs/ARCHITECTURE.md).
+
 ## ✨ Key Features
 
 - 📊 **Real-time Metrics**: High-density system-monitor style dashboard for CPU and memory usage.
