@@ -134,6 +134,3 @@ python -m pod_monitor
 - 🔧 **Environment Variable Configuration**: Robust support for passing configurations via Environment Variables, deprecating strict reliance on local YAML files and simplifying deployment in CI/CD pipelines.
 
 ---
-<div align="center">
-  <i>Built with ❤️ for Kubernetes enthusiasts.</i>
-</div>
