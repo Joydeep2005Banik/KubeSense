@@ -13,25 +13,25 @@ ssh:
 # AI Analysis Settings
 ai:
   enabled: true
-  provider: "mock"  # Options: openai, ollama, mock
+  provider: "groq"  # Options: openai, ollama, mock
   
-  # For OpenAI
-  openai_token: ""  # Or set OPENAI_API_KEY env var
-  openai_model: "gpt-3.5-turbo"
+  # For Groq
+  groq_token: ""  # Or set OPENAI_API_KEY env var
+  groq_model: "qwen/qwen3.8-27b"
   
   # For Ollama (local)
-  ollama_url: "http://localhost:11434"
-  ollama_model: "mistral"
+  #ollama_url: "http://localhost:11434"
+  #ollama_model: "mistral"
   
   # General AI settings
-  mock_mode: true
+  #mock_mode: true
   max_tokens: 500
   temperature: 0.3
 
 # Pod Monitoring Settings
 monitor:
   # Mode: "kubectl" (local kubectl) or "ssh" (remote via SSH)
-  mode: "ssh"
+  mode: "kubectl"
 
   # Kubernetes context to use (optional, will use active context if not set)
   context: "minikube"

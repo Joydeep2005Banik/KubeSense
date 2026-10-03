@@ -1,42 +1,72 @@
-# KubeSense
+<div align="center">
+  <img src="assets/screenshot_1785170994.svg" alt="KubeSense Logo" width="800"/>
+  
+  <br/>
+  
+  # KubeSense
+  **The high-density, terminal-based Kubernetes monitoring dashboard.**
+  
+  [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
+  [![Kubernetes](https://img.shields.io/badge/kubernetes-API-326ce5.svg)](https://kubernetes.io)
+  [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+</div>
 
-KubeSense is an advanced, terminal-based User Interface (TUI) tool specifically designed for real-time Kubernetes pod monitoring. By leveraging the official Kubernetes Python API and the Textual framework, KubeSense delivers a high-density, system-monitor style dashboard directly to your command line. It enables administrators and developers to instantly visualize cluster health, track dynamic CPU and memory usage, tail container logs, and run passive AI-driven log anomaly detection without requiring complex graphical interfaces.
+<hr/>
 
-## Installation
-KubeSense requires Python 3.10 or higher and relies on a locally configured `kubectl` context to authenticate with your Kubernetes cluster.
+**KubeSense** is an advanced, terminal-based User Interface (TUI) tool specifically designed for real-time Kubernetes pod monitoring. By leveraging the official Kubernetes Python API and the Textual framework, KubeSense delivers a high-density, system-monitor style dashboard directly to your command line. 
 
-1. Clone the repository and navigate into the directory:
+Say goodbye to complex web interfaces. Instantly visualize cluster health, track dynamic CPU and memory usage, tail container logs, and run passive AI-driven log anomaly detection—all from the comfort of your terminal.
+
+## ✨ Key Features
+
+- 📊 **Real-time Metrics**: High-density system-monitor style dashboard for CPU and memory usage.
+- 📜 **Live Log Tailing**: Stream container logs instantly without leaving the UI.
+- 🤖 **AI-Powered Insights**: Passive AI-driven log anomaly detection to spot issues before they escalate.
+- 🚀 **Zero Overhead**: No heavy web UI. Pure terminal application powered by Textual.
+- 🔌 **Seamless Integration**: Connects via your existing `kubectl` context, with a fallback SSH connection for node-level metrics.
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.10+
+- A locally configured `kubectl` context to authenticate with your Kubernetes cluster (e.g., Minikube).
+
+### Installation
+
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/Joydeep2005Banik/pod_monitor.git
    cd pod_monitor
    ```
 
-2. Create and activate an isolated virtual environment:
+2. **Set up a virtual environment:**
    ```bash
    python3 -m venv venv
    source venv/bin/activate
    ```
 
-3. Install the required dependencies:
+3. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-## Setup and Usage
+---
 
-To effectively utilize KubeSense, follow the steps below to prepare your environment and workloads.
+## ⚙️ Configuration & Usage
 
-### 1. Deploy a Cluster
-Ensure you have an active Kubernetes cluster and a valid local `KUBECONFIG`. For local testing, you can deploy a lightweight cluster using Minikube:
-
+### 1. Prepare Your Cluster
+Ensure you have an active Kubernetes cluster. For local testing, you can deploy a lightweight cluster using Minikube:
 ```bash
 minikube start
 ```
 
-### 2. Configure the Application
-You can customize application behaviors by modifying the `config.yaml` file located in the root directory. KubeSense connects to your cluster primarily via your local Kubernetes context, but it also supports a direct SSH fallback mechanism for retrieving node-level metrics if API metrics fail.
+### 2. Configure KubeSense
+Customize application behaviors in `config.yaml`. KubeSense connects to your cluster primarily via your local Kubernetes context, but supports a direct SSH fallback mechanism for retrieving node-level metrics if API metrics fail.
 
-To configure how KubeSense connects to your cluster, edit the `config.yaml` file. Below is an example that demonstrates setting the Kubernetes context and defining the SSH credentials for a local Minikube instance:
+<details>
+<summary><strong>Click to view example <code>config.yaml</code></strong></summary>
 
 ```yaml
 # SSH Connection Settings (Fallback)
@@ -61,69 +91,49 @@ monitor:
   log_lines_to_fetch: 50
   anomaly_threshold: 3
 ```
+</details>
 
-### 3. Deploy Workloads (Pods)
-KubeSense requires active pods in your cluster to monitor. You can deploy your own workloads or use the provided test configuration located in `tests/test-pod.yaml`, which includes healthy, crashing, and high-load pods to test the UI limits.
-
-To deploy the test pods, examine the file to understand the workloads. For example, a basic log generator pod is defined as:
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: log-generator
-  labels:
-    app: log-generator
-spec:
-  containers:
-  - name: logger
-    image: busybox
-    resources:
-      limits:
-        memory: "64Mi"
-        cpu: "100m"
-    command: ["/bin/sh", "-c"]
-    args:
-      - |
-        while true; do
-          echo "$(date -u +'%Y-%m-%dT%H:%M:%SZ') INFO Request processed successfully"
-          sleep 2
-        done
-```
-
-Apply this configuration to your cluster using `kubectl`:
+### 3. Deploy Test Workloads (Optional)
+KubeSense requires active pods in your cluster to monitor. You can deploy your own workloads or use the provided test configuration, which includes healthy, crashing, and high-load pods to test the UI limits.
 
 ```bash
 kubectl apply -f tests/test-pod.yaml
 ```
 
-### 4. Launch KubeSense
-Once your cluster is running and pods are deployed, execute the following command while your virtual environment is active to start the dashboard:
-
+### 4. Launch the Dashboard
+With your cluster running and virtual environment active, start KubeSense:
 ```bash
 python -m pod_monitor
 ```
 
-### Interface Controls
-- **Up/Down Arrow Keys or Mouse Click**: Select a specific pod from the sidebar to inspect its detailed metrics and live logs.
-- **R**: Manually refresh the data feed for the current view.
-- **A**: Toggle the AI-powered log analysis module.
-- **S**: Capture and save an SVG screenshot of the current interface.
-- **Q**: Terminate the application safely.
+---
 
-## Terminal User Interface
+## 🎮 Interface Controls
 
-The KubeSense interface provides an immediate, high-density visual summary of your infrastructure without leaving the command line. Below are captures of the application in operation:
+| Key / Action | Description |
+| :--- | :--- |
+| **⬆️ / ⬇️** or **Click** | Select a specific pod from the sidebar to inspect its detailed metrics and live logs. |
+| **R** | Manually refresh the data feed for the current view. |
+| **A** | Toggle the AI-powered log analysis module. |
+| **S** | Capture and save an SVG screenshot of the current interface. |
+| **Q** | Terminate the application safely. |
 
-![KubeSense Interface Overview](assets/screenshot_1785170994.svg)
+---
 
-![KubeSense Detailed View](assets/screenshot_1785171001.svg)
+## 📸 Screenshots
 
-## Under Development
-KubeSense is currently in active development. Core features such as basic metrics visualization and native Kubernetes API integration are stable, but several background processors and error-handling routines are undergoing rigorous testing. Specifically, the AI-driven log anomaly detection and integration features are currently pending and under active development. These advanced AI capabilities will be formally rolled out in future iterations once the algorithmic heuristics are completely stabilized.
+<div align="center">
+  <img src="assets/screenshot_1785170994.svg" alt="KubeSense Interface Overview" width="48%">
+  <img src="assets/screenshot_1785171001.svg" alt="KubeSense Detailed View" width="48%">
+  <p><em>Experience a high-density visual summary of your infrastructure without leaving the command line.</em></p>
+</div>
 
-## Future Possible Scopes
-As development continues, the KubeSense roadmap includes several architectural and feature-based expansions to improve scalability and user experience:
+---
 
-- **Expanded Theme Set**: Introducing comprehensive color schemes and visual themes to support various terminal environments and user accessibility preferences.
-- **Environment Variable Configuration**: Implementing robust support for passing configurations via Environment Variables. This will deprecate strict reliance on local YAML files, significantly simplifying deployment across disparate environments and automated CI/CD pipelines.
+## 🚧 Upcoming Features
+- 🔧 **Environment Variable Configuration**: Robust support for passing configurations via Environment Variables, deprecating strict reliance on local YAML files and simplifying deployment in CI/CD pipelines.
+
+---
+<div align="center">
+  <i>Built with ❤️ for Kubernetes enthusiasts.</i>
+</div>
