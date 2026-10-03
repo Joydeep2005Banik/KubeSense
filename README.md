@@ -1,6 +1,7 @@
 <div align="center">
-  # KubeSense
-  **The high-density, terminal-based Kubernetes monitoring dashboard.**
+  <h1>KubeSense</h1>
+  <strong>The high-density, terminal-based Kubernetes monitoring dashboard.</strong>
+  <br/><br/>
   
   [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
   [![Kubernetes](https://img.shields.io/badge/kubernetes-API-326ce5.svg)](https://kubernetes.io)
